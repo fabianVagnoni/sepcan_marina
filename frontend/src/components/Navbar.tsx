@@ -15,10 +15,10 @@ import MenuIcon from '@mui/icons-material/Menu'
 import BuildIcon from '@mui/icons-material/Build'
 
 const pages = [
-  { name: 'Home', path: '/' },
-  { name: 'Vehicle Form', path: '/vehicle-form' },
-  { name: 'Job Form', path: '/job-form' },
-  { name: 'Query Data', path: '/query' },
+  { name: 'Inicio', path: '/' },
+  { name: 'Formulario de Vehículo', path: '/vehicle-form' },
+  { name: 'Formulario de Trabajo', path: '/job-form' },
+  { name: 'Consultar Datos', path: '/query' },
 ]
 
 const Navbar = () => {
@@ -53,7 +53,7 @@ const Navbar = () => {
               textDecoration: 'none',
             }}
           >
-            SERVICE CO.
+            SEPCAN MARINA
           </Typography>
 
           {/* Mobile menu */}
@@ -117,7 +117,7 @@ const Navbar = () => {
               textDecoration: 'none',
             }}
           >
-            SERVICE CO.
+            SEPCAN MARINA
           </Typography>
 
           {/* Desktop menu */}

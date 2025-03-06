@@ -7,6 +7,7 @@ import {
   CardActions,
   Button,
   Box,
+  Paper,
 } from '@mui/material'
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar'
 import BuildIcon from '@mui/icons-material/Build'
@@ -14,20 +15,28 @@ import StorageIcon from '@mui/icons-material/Storage'
 
 const Dashboard = () => {
   return (
-    <div className="dashboard-container">
+    <Paper elevation={3} className="form-container">
       <Typography variant="h4" component="h1" className="page-title" gutterBottom>
-        Service Company Forms
+        Formularios SEPCAN Marina
       </Typography>
       
       <Typography variant="body1" paragraph>
-        Welcome to the Service Company Forms application. This system allows employees to submit
-        vehicle and job forms, and provides a way for administrators to query the data.
+        Bienvenido a la aplicación de Formularios de SEPCAN Marina. Este sistema permite a los empleados enviar
+        formularios de vehículos y trabajos, y proporciona una forma para que los administradores consulten los datos.
       </Typography>
       
       <Box sx={{ mt: 4 }}>
-        <Grid container spacing={4}>
+        <Grid 
+          container 
+          spacing={4} 
+          className="dashboard-grid"
+          justifyContent="center"
+          sx={{
+            flexWrap: { xs: 'wrap', md: 'nowrap' }
+          }}
+        >
           {/* Vehicle Form Card */}
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={6} md={4} sx={{ width: '100%', maxWidth: '350px' }}>
             <Card 
               sx={{ 
                 height: '100%', 
@@ -45,11 +54,11 @@ const Dashboard = () => {
               </Box>
               <CardContent sx={{ flexGrow: 1 }}>
                 <Typography gutterBottom variant="h5" component="h2">
-                  Vehicle Form
+                  Formulario de Vehículo
                 </Typography>
                 <Typography>
-                  Fill out this form before meeting the client. It includes information about the vehicle
-                  condition and cleanliness.
+                  Complete este formulario antes de reunirse con el cliente. Incluye información sobre la
+                  condición y limpieza del vehículo.
                 </Typography>
               </CardContent>
               <CardActions>
@@ -61,14 +70,14 @@ const Dashboard = () => {
                   fullWidth
                   variant="contained"
                 >
-                  Go to Vehicle Form
+                  Ir al Formulario de Vehículo
                 </Button>
               </CardActions>
             </Card>
           </Grid>
           
           {/* Job Form Card */}
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={6} md={4} sx={{ width: '100%', maxWidth: '350px' }}>
             <Card 
               sx={{ 
                 height: '100%', 
@@ -86,11 +95,11 @@ const Dashboard = () => {
               </Box>
               <CardContent sx={{ flexGrow: 1 }}>
                 <Typography gutterBottom variant="h5" component="h2">
-                  Job Form
+                  Formulario de Trabajo
                 </Typography>
                 <Typography>
-                  Fill out this form after completing the job. It includes information about the time spent
-                  and materials used.
+                  Complete este formulario después de terminar el trabajo. Incluye información sobre el tiempo
+                  dedicado y los materiales utilizados.
                 </Typography>
               </CardContent>
               <CardActions>
@@ -102,14 +111,14 @@ const Dashboard = () => {
                   fullWidth
                   variant="contained"
                 >
-                  Go to Job Form
+                  Ir al Formulario de Trabajo
                 </Button>
               </CardActions>
             </Card>
           </Grid>
           
           {/* Query Data Card */}
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={6} md={4} sx={{ width: '100%', maxWidth: '350px' }}>
             <Card 
               sx={{ 
                 height: '100%', 
@@ -127,10 +136,10 @@ const Dashboard = () => {
               </Box>
               <CardContent sx={{ flexGrow: 1 }}>
                 <Typography gutterBottom variant="h5" component="h2">
-                  Query Data
+                  Consultar Datos
                 </Typography>
                 <Typography>
-                  Query and download data from the database. Filter by employee, job, or vehicle.
+                  Consulte y descargue datos de la base de datos. Filtre por empleado, trabajo o vehículo.
                 </Typography>
               </CardContent>
               <CardActions>
@@ -142,14 +151,14 @@ const Dashboard = () => {
                   fullWidth
                   variant="contained"
                 >
-                  Go to Query Page
+                  Ir a la Página de Consulta
                 </Button>
               </CardActions>
             </Card>
           </Grid>
         </Grid>
       </Box>
-    </div>
+    </Paper>
   )
 }
 

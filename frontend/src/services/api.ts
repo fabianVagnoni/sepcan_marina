@@ -33,6 +33,8 @@ export interface QueryParams {
   employee_id?: number
   job_id?: number
   vehicle_id?: number
+  start_time?: string
+  end_time?: string
   format?: 'json' | 'excel'
 }
 
@@ -57,6 +59,16 @@ export const submitJobForm = async (data: JobFormData) => {
   }
 }
 
+export const getVehicleTimestamps = async () => {
+  try {
+    const response = await api.get('/query/vehicle-timestamps')
+    return response.data
+  } catch (error) {
+    console.error('Error getting vehicle timestamps:', error)
+    throw error
+  }
+}
+
 export const queryVehicleFormularies = async (params: QueryParams) => {
   try {
     if (params.format === 'excel') {
@@ -65,6 +77,8 @@ export const queryVehicleFormularies = async (params: QueryParams) => {
       if (params.employee_id) queryString.append('employee_id', params.employee_id.toString())
       if (params.job_id) queryString.append('job_id', params.job_id.toString())
       if (params.vehicle_id) queryString.append('vehicle_id', params.vehicle_id.toString())
+      if (params.start_time) queryString.append('start_time', params.start_time)
+      if (params.end_time) queryString.append('end_time', params.end_time)
       queryString.append('format', 'excel')
       
       window.open(`/api/query/vehicle-formularies?${queryString.toString()}`, '_blank')
@@ -87,6 +101,8 @@ export const queryJobFormularies = async (params: QueryParams) => {
       if (params.employee_id) queryString.append('employee_id', params.employee_id.toString())
       if (params.job_id) queryString.append('job_id', params.job_id.toString())
       if (params.vehicle_id) queryString.append('vehicle_id', params.vehicle_id.toString())
+      if (params.start_time) queryString.append('start_time', params.start_time)
+      if (params.end_time) queryString.append('end_time', params.end_time)
       queryString.append('format', 'excel')
       
       window.open(`/api/query/job-formularies?${queryString.toString()}`, '_blank')
@@ -109,6 +125,8 @@ export const queryCombinedData = async (params: QueryParams) => {
       if (params.employee_id) queryString.append('employee_id', params.employee_id.toString())
       if (params.job_id) queryString.append('job_id', params.job_id.toString())
       if (params.vehicle_id) queryString.append('vehicle_id', params.vehicle_id.toString())
+      if (params.start_time) queryString.append('start_time', params.start_time)
+      if (params.end_time) queryString.append('end_time', params.end_time)
       queryString.append('format', 'excel')
       
       window.open(`/api/query/combined-data?${queryString.toString()}`, '_blank')

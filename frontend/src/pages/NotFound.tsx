@@ -27,10 +27,10 @@ const NotFound = () => {
       >
         <ErrorOutlineIcon sx={{ fontSize: 100, color: 'error.main', mb: 2 }} />
         <Typography variant="h4" component="h1" gutterBottom>
-          Page Not Found
+          Página No Encontrada
         </Typography>
         <Typography variant="body1" paragraph>
-          The page you are looking for does not exist or has been moved.
+          La página que está buscando no existe o ha sido movida.
         </Typography>
         <Button
           variant="contained"
@@ -39,7 +39,7 @@ const NotFound = () => {
           to="/"
           sx={{ mt: 2 }}
         >
-          Return to Home
+          Volver al Inicio
         </Button>
       </Paper>
     </Box>

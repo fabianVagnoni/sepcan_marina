@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import {
   Typography,
@@ -20,6 +20,7 @@ import {
   TableRow,
   Tabs,
   Tab,
+  FormHelperText,
 } from '@mui/material'
 import DownloadIcon from '@mui/icons-material/Download'
 
@@ -27,6 +28,7 @@ import {
   queryVehicleFormularies,
   queryJobFormularies,
   queryCombinedData,
+  getVehicleTimestamps,
   QueryParams,
 } from '../services/api'
 
@@ -57,15 +59,45 @@ const QueryPage = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [vehicleData, setVehicleData] = useState<any[]>([])
   const [jobData, setJobData] = useState<any[]>([])
+  const [availableTimestamps, setAvailableTimestamps] = useState<string[]>([])
+  const [isLoadingTimestamps, setIsLoadingTimestamps] = useState(false)
   
-  const { control, handleSubmit } = useForm<QueryParams>({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    watch,
+    setValue,
+  } = useForm<QueryParams>({
     defaultValues: {
       employee_id: undefined,
       job_id: undefined,
       vehicle_id: undefined,
+      start_time: undefined,
+      end_time: undefined,
       format: 'json',
     },
   })
+
+  // Watch start_time to validate end_time
+  const startTime = watch('start_time')
+
+  // Fetch available timestamps on component mount
+  useEffect(() => {
+    const fetchTimestamps = async () => {
+      try {
+        setIsLoadingTimestamps(true)
+        const timestamps = await getVehicleTimestamps()
+        setAvailableTimestamps(timestamps || [])
+      } catch (error) {
+        console.error('Error fetching timestamps:', error)
+      } finally {
+        setIsLoadingTimestamps(false)
+      }
+    }
+
+    fetchTimestamps()
+  }, [])
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue)
@@ -110,16 +142,96 @@ const QueryPage = () => {
   return (
     <div className="form-container">
       <Typography variant="h4" component="h1" className="page-title">
-        Query Data
+        Consultar Datos
       </Typography>
       
       <Typography variant="body1" paragraph>
-        Use this page to query and download data from the database. You can filter by employee, job, or vehicle.
+        Utilice esta página para consultar y descargar datos de la base de datos. Puede filtrar por rango de tiempo u otros parámetros.
       </Typography>
       
       <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={3}>
+            {/* Time Range Filters */}
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                Filtro de Rango de Tiempo
+              </Typography>
+            </Grid>
+            
+            <Grid item xs={12} md={6}>
+              <Controller
+                name="start_time"
+                control={control}
+                render={({ field }) => (
+                  <FormControl fullWidth error={!!errors.start_time} disabled={isLoadingTimestamps}>
+                    <InputLabel>Hora de Inicio</InputLabel>
+                    <Select
+                      {...field}
+                      label="Hora de Inicio"
+                      value={field.value || ''}
+                      onChange={(e) => {
+                        field.onChange(e.target.value)
+                        // Clear end_time if it's before the new start_time
+                        const endTime = watch('end_time')
+                        if (endTime && e.target.value && endTime < e.target.value) {
+                          setValue('end_time', undefined)
+                        }
+                      }}
+                    >
+                      <MenuItem value="">
+                        <em>Ninguno</em>
+                      </MenuItem>
+                      {availableTimestamps.map((timestamp) => (
+                        <MenuItem key={timestamp} value={timestamp}>
+                          {timestamp}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {isLoadingTimestamps && <FormHelperText>Cargando marcas de tiempo disponibles...</FormHelperText>}
+                    {errors.start_time && <FormHelperText>{errors.start_time.message}</FormHelperText>}
+                  </FormControl>
+                )}
+              />
+            </Grid>
+            
+            <Grid item xs={12} md={6}>
+              <Controller
+                name="end_time"
+                control={control}
+                render={({ field }) => (
+                  <FormControl fullWidth error={!!errors.end_time} disabled={isLoadingTimestamps || !startTime}>
+                    <InputLabel>Hora de Fin</InputLabel>
+                    <Select
+                      {...field}
+                      label="Hora de Fin"
+                      value={field.value || ''}
+                    >
+                      <MenuItem value="">
+                        <em>Ninguno</em>
+                      </MenuItem>
+                      {availableTimestamps
+                        .filter((timestamp) => !startTime || timestamp >= startTime)
+                        .map((timestamp) => (
+                          <MenuItem key={timestamp} value={timestamp}>
+                            {timestamp}
+                          </MenuItem>
+                        ))}
+                    </Select>
+                    {!startTime && <FormHelperText>Por favor, seleccione primero una hora de inicio</FormHelperText>}
+                    {errors.end_time && <FormHelperText>{errors.end_time.message}</FormHelperText>}
+                  </FormControl>
+                )}
+              />
+            </Grid>
+            
+            {/* Other Filters */}
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                Filtros Adicionales (Opcional)
+              </Typography>
+            </Grid>
+            
             <Grid item xs={12} md={4}>
               <Controller
                 name="employee_id"
@@ -127,7 +239,7 @@ const QueryPage = () => {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Employee ID (optional)"
+                    label="ID del Empleado"
                     type="number"
                     fullWidth
                     InputLabelProps={{ shrink: true }}
@@ -145,7 +257,7 @@ const QueryPage = () => {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Job ID (optional)"
+                    label="ID del Trabajo"
                     type="number"
                     fullWidth
                     InputLabelProps={{ shrink: true }}
@@ -163,7 +275,7 @@ const QueryPage = () => {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Vehicle ID (optional)"
+                    label="ID del Vehículo"
                     type="number"
                     fullWidth
                     InputLabelProps={{ shrink: true }}
@@ -180,10 +292,10 @@ const QueryPage = () => {
                 control={control}
                 render={({ field }) => (
                   <FormControl fullWidth>
-                    <InputLabel>Format</InputLabel>
-                    <Select {...field} label="Format">
-                      <MenuItem value="json">JSON (view in browser)</MenuItem>
-                      <MenuItem value="excel">Excel (download)</MenuItem>
+                    <InputLabel>Formato</InputLabel>
+                    <Select {...field} label="Formato">
+                      <MenuItem value="json">JSON (ver en navegador)</MenuItem>
+                      <MenuItem value="excel">Excel (descargar)</MenuItem>
                     </Select>
                   </FormControl>
                 )}
@@ -199,7 +311,7 @@ const QueryPage = () => {
                   disabled={isLoading}
                   startIcon={isLoading ? <CircularProgress size={20} /> : <DownloadIcon />}
                 >
-                  {isLoading ? 'Loading...' : 'Query Data'}
+                  {isLoading ? 'Cargando...' : 'Consultar Datos'}
                 </Button>
               </Box>
             </Grid>
@@ -210,9 +322,9 @@ const QueryPage = () => {
       <Paper elevation={3}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={tabValue} onChange={handleTabChange} aria-label="query tabs">
-            <Tab label="Vehicle Forms" />
-            <Tab label="Job Forms" />
-            <Tab label="Combined Data" />
+            <Tab label="Formularios de Vehículo" />
+            <Tab label="Formularios de Trabajo" />
+            <Tab label="Datos Combinados" />
           </Tabs>
         </Box>
         
@@ -223,15 +335,15 @@ const QueryPage = () => {
                 <TableHead>
                   <TableRow>
                     <TableCell>ID</TableCell>
-                    <TableCell>Employee ID</TableCell>
-                    <TableCell>Employee Name</TableCell>
-                    <TableCell>Job ID</TableCell>
-                    <TableCell>Job Place</TableCell>
-                    <TableCell>Vehicle ID</TableCell>
-                    <TableCell>Vehicle Condition</TableCell>
-                    <TableCell>Vehicle Clean</TableCell>
-                    <TableCell>Comments</TableCell>
-                    <TableCell>Timestamp</TableCell>
+                    <TableCell>ID del Empleado</TableCell>
+                    <TableCell>Nombre del Empleado</TableCell>
+                    <TableCell>ID del Trabajo</TableCell>
+                    <TableCell>Lugar del Trabajo</TableCell>
+                    <TableCell>ID del Vehículo</TableCell>
+                    <TableCell>Condición del Vehículo</TableCell>
+                    <TableCell>Limpieza del Vehículo</TableCell>
+                    <TableCell>Comentarios</TableCell>
+                    <TableCell>Marca de Tiempo</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -254,7 +366,7 @@ const QueryPage = () => {
             </TableContainer>
           ) : (
             <Typography variant="body1" sx={{ p: 2 }}>
-              No vehicle form data to display. Please query the database.
+              No hay datos de formularios de vehículo para mostrar. Por favor, consulte la base de datos.
             </Typography>
           )}
         </TabPanel>
@@ -266,14 +378,14 @@ const QueryPage = () => {
                 <TableHead>
                   <TableRow>
                     <TableCell>ID</TableCell>
-                    <TableCell>Employee ID</TableCell>
-                    <TableCell>Employee Name</TableCell>
-                    <TableCell>Job ID</TableCell>
-                    <TableCell>Job Place</TableCell>
-                    <TableCell>Time to Commute</TableCell>
-                    <TableCell>Time of Work</TableCell>
-                    <TableCell>Vehicle ID</TableCell>
-                    <TableCell>Nails Used</TableCell>
+                    <TableCell>ID del Empleado</TableCell>
+                    <TableCell>Nombre del Empleado</TableCell>
+                    <TableCell>ID del Trabajo</TableCell>
+                    <TableCell>Lugar del Trabajo</TableCell>
+                    <TableCell>Tiempo de Desplazamiento</TableCell>
+                    <TableCell>Tiempo de Trabajo</TableCell>
+                    <TableCell>ID del Vehículo</TableCell>
+                    <TableCell>Clavos Utilizados</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -295,14 +407,14 @@ const QueryPage = () => {
             </TableContainer>
           ) : (
             <Typography variant="body1" sx={{ p: 2 }}>
-              No job form data to display. Please query the database.
+              No hay datos de formularios de trabajo para mostrar. Por favor, consulte la base de datos.
             </Typography>
           )}
         </TabPanel>
         
         <TabPanel value={tabValue} index={2}>
           <Typography variant="h6" gutterBottom>
-            Vehicle Forms
+            Formularios de Vehículo
           </Typography>
           {vehicleData.length > 0 ? (
             <TableContainer sx={{ mb: 4 }}>
@@ -310,13 +422,14 @@ const QueryPage = () => {
                 <TableHead>
                   <TableRow>
                     <TableCell>ID</TableCell>
-                    <TableCell>Employee ID</TableCell>
-                    <TableCell>Employee Name</TableCell>
-                    <TableCell>Job ID</TableCell>
-                    <TableCell>Job Place</TableCell>
-                    <TableCell>Vehicle ID</TableCell>
-                    <TableCell>Vehicle Condition</TableCell>
-                    <TableCell>Vehicle Clean</TableCell>
+                    <TableCell>ID del Empleado</TableCell>
+                    <TableCell>Nombre del Empleado</TableCell>
+                    <TableCell>ID del Trabajo</TableCell>
+                    <TableCell>Lugar del Trabajo</TableCell>
+                    <TableCell>ID del Vehículo</TableCell>
+                    <TableCell>Condición del Vehículo</TableCell>
+                    <TableCell>Limpieza del Vehículo</TableCell>
+                    <TableCell>Marca de Tiempo</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -330,6 +443,7 @@ const QueryPage = () => {
                       <TableCell>{row.vehicle_id}</TableCell>
                       <TableCell>{row.vehicle_condition}</TableCell>
                       <TableCell>{row.vehicle_clean}</TableCell>
+                      <TableCell>{new Date(row.timestamp).toLocaleString()}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -337,12 +451,12 @@ const QueryPage = () => {
             </TableContainer>
           ) : (
             <Typography variant="body1" sx={{ p: 2, mb: 4 }}>
-              No vehicle form data to display. Please query the database.
+              No hay datos de formularios de vehículo para mostrar. Por favor, consulte la base de datos.
             </Typography>
           )}
           
           <Typography variant="h6" gutterBottom>
-            Job Forms
+            Formularios de Trabajo
           </Typography>
           {jobData.length > 0 ? (
             <TableContainer>
@@ -350,14 +464,14 @@ const QueryPage = () => {
                 <TableHead>
                   <TableRow>
                     <TableCell>ID</TableCell>
-                    <TableCell>Employee ID</TableCell>
-                    <TableCell>Employee Name</TableCell>
-                    <TableCell>Job ID</TableCell>
-                    <TableCell>Job Place</TableCell>
-                    <TableCell>Time to Commute</TableCell>
-                    <TableCell>Time of Work</TableCell>
-                    <TableCell>Vehicle ID</TableCell>
-                    <TableCell>Nails Used</TableCell>
+                    <TableCell>ID del Empleado</TableCell>
+                    <TableCell>Nombre del Empleado</TableCell>
+                    <TableCell>ID del Trabajo</TableCell>
+                    <TableCell>Lugar del Trabajo</TableCell>
+                    <TableCell>Tiempo de Desplazamiento</TableCell>
+                    <TableCell>Tiempo de Trabajo</TableCell>
+                    <TableCell>ID del Vehículo</TableCell>
+                    <TableCell>Clavos Utilizados</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -379,7 +493,7 @@ const QueryPage = () => {
             </TableContainer>
           ) : (
             <Typography variant="body1" sx={{ p: 2 }}>
-              No job form data to display. Please query the database.
+              No hay datos de formularios de trabajo para mostrar. Por favor, consulte la base de datos.
             </Typography>
           )}
         </TabPanel>

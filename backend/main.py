@@ -1,8 +1,9 @@
 from fastapi import FastAPI, Depends, HTTPException, Query, Form
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from sqlalchemy import func, and_
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 import pandas as pd
 from io import BytesIO
 from fastapi.responses import StreamingResponse
@@ -102,12 +103,40 @@ def create_job_formulary(formulary: JobFormularyCreate, db: Session = Depends(ge
         db.rollback()
         raise HTTPException(status_code=400, detail=f"Error submitting job formulary: {str(e)}")
 
+# Get available timestamps for vehicle formularies (rounded to hours)
+@app.get("/query/vehicle-timestamps")
+def get_vehicle_timestamps(db: Session = Depends(get_db)):
+    try:
+        # Get all timestamps from the database
+        results = db.query(VehicleFormulary.timestamp).all()
+        
+        # Round timestamps to the nearest hour and remove duplicates
+        rounded_timestamps = []
+        for row in results:
+            dt = row[0]
+            # Round to the nearest hour
+            rounded = dt.replace(minute=0, second=0, microsecond=0)
+            if rounded not in rounded_timestamps:
+                rounded_timestamps.append(rounded)
+        
+        # Sort timestamps
+        rounded_timestamps.sort()
+        
+        # Convert to string format
+        formatted_timestamps = [dt.strftime("%d-%m-%y %H:%M:%S") for dt in rounded_timestamps]
+        
+        return formatted_timestamps
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error getting timestamps: {str(e)}")
+
 # Query endpoints
 @app.get("/query/vehicle-formularies")
 def query_vehicle_formularies(
     employee_id: Optional[int] = None,
     job_id: Optional[int] = None,
     vehicle_id: Optional[int] = None,
+    start_time: Optional[str] = None,
+    end_time: Optional[str] = None,
     format: str = Query("json", description="Response format: json or excel"),
     db: Session = Depends(get_db)
 ):
@@ -119,6 +148,18 @@ def query_vehicle_formularies(
         query = query.filter(VehicleFormulary.job_id == job_id)
     if vehicle_id:
         query = query.filter(VehicleFormulary.vehicle_id == vehicle_id)
+    
+    # Filter by time range if provided
+    if start_time and end_time:
+        try:
+            start_datetime = datetime.strptime(start_time, "%d-%m-%y %H:%M:%S")
+            end_datetime = datetime.strptime(end_time, "%d-%m-%y %H:%M:%S")
+            query = query.filter(and_(
+                VehicleFormulary.timestamp >= start_datetime,
+                VehicleFormulary.timestamp <= end_datetime
+            ))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=f"Invalid datetime format: {str(e)}")
     
     results = query.all()
     
@@ -218,6 +259,8 @@ def query_combined_data(
     employee_id: Optional[int] = None,
     job_id: Optional[int] = None,
     vehicle_id: Optional[int] = None,
+    start_time: Optional[str] = None,
+    end_time: Optional[str] = None,
     format: str = Query("json", description="Response format: json or excel"),
     db: Session = Depends(get_db)
 ):
@@ -229,6 +272,19 @@ def query_combined_data(
         vehicle_query = vehicle_query.filter(VehicleFormulary.job_id == job_id)
     if vehicle_id:
         vehicle_query = vehicle_query.filter(VehicleFormulary.vehicle_id == vehicle_id)
+    
+    # Filter by time range if provided
+    if start_time and end_time:
+        try:
+            start_datetime = datetime.strptime(start_time, "%d-%m-%y %H:%M:%S")
+            end_datetime = datetime.strptime(end_time, "%d-%m-%y %H:%M:%S")
+            vehicle_query = vehicle_query.filter(and_(
+                VehicleFormulary.timestamp >= start_datetime,
+                VehicleFormulary.timestamp <= end_datetime
+            ))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=f"Invalid datetime format: {str(e)}")
+    
     vehicle_results = vehicle_query.all()
     
     # Query job formularies

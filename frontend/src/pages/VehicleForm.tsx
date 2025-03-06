@@ -19,7 +19,7 @@ import { toast } from 'react-toastify'
 
 import { submitVehicleForm, VehicleFormData } from '../services/api'
 
-const conditionOptions = ['perfect', 'good', 'bad', 'critical']
+const conditionOptions = ['perfecto', 'bueno', 'malo', 'crítico']
 
 const VehicleForm = () => {
   const navigate = useNavigate()
@@ -37,8 +37,8 @@ const VehicleForm = () => {
       job_id: undefined,
       job_place: '',
       vehicle_id: undefined,
-      vehicle_condition: 'good',
-      vehicle_clean: 'good',
+      vehicle_condition: 'bueno',
+      vehicle_clean: 'bueno',
       comments: '',
       timestamp: new Date().toISOString(),
     },
@@ -51,11 +51,11 @@ const VehicleForm = () => {
       data.timestamp = new Date().toISOString()
       
       await submitVehicleForm(data)
-      toast.success('Vehicle form submitted successfully!')
+      toast.success('¡Formulario de vehículo enviado con éxito!')
       reset()
       navigate('/')
     } catch (error: any) {
-      toast.error(`Error: ${error.response?.data?.detail || 'Failed to submit form'}`)
+      toast.error(`Error: ${error.response?.data?.detail || 'Error al enviar el formulario'}`)
     } finally {
       setIsSubmitting(false)
     }
@@ -64,11 +64,11 @@ const VehicleForm = () => {
   return (
     <div className="form-container">
       <Typography variant="h4" component="h1" className="page-title">
-        Vehicle Form
+        Formulario de Vehículo
       </Typography>
       
       <Typography variant="body1" paragraph>
-        Please fill out this form before meeting the client. This form collects information about the vehicle you are using.
+        Por favor, complete este formulario antes de reunirse con el cliente. Este formulario recopila información sobre el vehículo que está utilizando.
       </Typography>
       
       <Paper elevation={3} sx={{ p: 3 }}>
@@ -77,7 +77,7 @@ const VehicleForm = () => {
             {/* Employee Information */}
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>
-                Employee Information
+                Información del Empleado
               </Typography>
             </Grid>
             
@@ -85,11 +85,11 @@ const VehicleForm = () => {
               <Controller
                 name="employee_id"
                 control={control}
-                rules={{ required: 'Employee ID is required' }}
+                rules={{ required: 'El ID del empleado es obligatorio' }}
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Employee ID"
+                    label="ID del Empleado"
                     type="number"
                     fullWidth
                     error={!!errors.employee_id}
@@ -106,11 +106,11 @@ const VehicleForm = () => {
               <Controller
                 name="employee_name"
                 control={control}
-                rules={{ required: 'Employee name is required' }}
+                rules={{ required: 'El nombre del empleado es obligatorio' }}
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Employee Name"
+                    label="Nombre del Empleado"
                     fullWidth
                     error={!!errors.employee_name}
                     helperText={errors.employee_name?.message}
@@ -122,7 +122,7 @@ const VehicleForm = () => {
             {/* Job Information */}
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>
-                Job Information
+                Información del Trabajo
               </Typography>
             </Grid>
             
@@ -130,11 +130,11 @@ const VehicleForm = () => {
               <Controller
                 name="job_id"
                 control={control}
-                rules={{ required: 'Job ID is required' }}
+                rules={{ required: 'El ID del trabajo es obligatorio' }}
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Job ID"
+                    label="ID del Trabajo"
                     type="number"
                     fullWidth
                     error={!!errors.job_id}
@@ -151,11 +151,11 @@ const VehicleForm = () => {
               <Controller
                 name="job_place"
                 control={control}
-                rules={{ required: 'Job place is required' }}
+                rules={{ required: 'El lugar del trabajo es obligatorio' }}
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Job Place"
+                    label="Lugar del Trabajo"
                     fullWidth
                     error={!!errors.job_place}
                     helperText={errors.job_place?.message}
@@ -167,7 +167,7 @@ const VehicleForm = () => {
             {/* Vehicle Information */}
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>
-                Vehicle Information
+                Información del Vehículo
               </Typography>
             </Grid>
             
@@ -175,11 +175,11 @@ const VehicleForm = () => {
               <Controller
                 name="vehicle_id"
                 control={control}
-                rules={{ required: 'Vehicle ID is required' }}
+                rules={{ required: 'El ID del vehículo es obligatorio' }}
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Vehicle ID"
+                    label="ID del Vehículo"
                     type="number"
                     fullWidth
                     error={!!errors.vehicle_id}
@@ -196,11 +196,11 @@ const VehicleForm = () => {
               <Controller
                 name="vehicle_condition"
                 control={control}
-                rules={{ required: 'Vehicle condition is required' }}
+                rules={{ required: 'La condición del vehículo es obligatoria' }}
                 render={({ field }) => (
                   <FormControl fullWidth error={!!errors.vehicle_condition}>
-                    <InputLabel>Vehicle Condition</InputLabel>
-                    <Select {...field} label="Vehicle Condition">
+                    <InputLabel>Condición del Vehículo</InputLabel>
+                    <Select {...field} label="Condición del Vehículo">
                       {conditionOptions.map((option) => (
                         <MenuItem key={option} value={option}>
                           {option.charAt(0).toUpperCase() + option.slice(1)}
@@ -219,11 +219,11 @@ const VehicleForm = () => {
               <Controller
                 name="vehicle_clean"
                 control={control}
-                rules={{ required: 'Vehicle cleanliness is required' }}
+                rules={{ required: 'La limpieza del vehículo es obligatoria' }}
                 render={({ field }) => (
                   <FormControl fullWidth error={!!errors.vehicle_clean}>
-                    <InputLabel>Vehicle Cleanliness</InputLabel>
-                    <Select {...field} label="Vehicle Cleanliness">
+                    <InputLabel>Limpieza del Vehículo</InputLabel>
+                    <Select {...field} label="Limpieza del Vehículo">
                       {conditionOptions.map((option) => (
                         <MenuItem key={option} value={option}>
                           {option.charAt(0).toUpperCase() + option.slice(1)}
@@ -245,11 +245,11 @@ const VehicleForm = () => {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Comments"
+                    label="Comentarios"
                     multiline
                     rows={4}
                     fullWidth
-                    placeholder="Any additional comments about the vehicle..."
+                    placeholder="Cualquier comentario adicional sobre el vehículo..."
                   />
                 )}
               />
@@ -262,7 +262,7 @@ const VehicleForm = () => {
                   onClick={() => navigate('/')}
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  Cancelar
                 </Button>
                 <Button
                   type="submit"
@@ -271,7 +271,7 @@ const VehicleForm = () => {
                   disabled={isSubmitting}
                   startIcon={isSubmitting ? <CircularProgress size={20} /> : null}
                 >
-                  {isSubmitting ? 'Submitting...' : 'Submit'}
+                  {isSubmitting ? 'Enviando...' : 'Enviar'}
                 </Button>
               </Box>
             </Grid>

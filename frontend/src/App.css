@@ -40,3 +40,62 @@
 .read-the-docs {
   color: #888;
 }
+
+/* App.css */
+
+/* Ensure all Paper components have a solid white background with some opacity */
+.MuiPaper-root {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Make the navbar have a solid background */
+.MuiAppBar-root {
+  background-color: #1976d2 !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Add a subtle border to content containers */
+.form-container {
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(5px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Style for dashboard cards to ensure they have white backgrounds */
+.dashboard-grid .MuiCard-root {
+  background-color: white;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dashboard-grid .MuiCard-root:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Ensure tables have solid white backgrounds */
+.MuiTableContainer-root {
+  background-color: white !important;
+}
+
+/* Style for the background container */
+.background-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+  background-image: url("../assets/background_pic.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(5px);
+  opacity: 0.7;
+}
