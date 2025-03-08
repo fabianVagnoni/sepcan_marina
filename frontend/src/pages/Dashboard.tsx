@@ -1,164 +1,283 @@
+import { Box, Typography, Grid, Paper, Button } from '@mui/material'
 import { Link as RouterLink } from 'react-router-dom'
-import {
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  CardActions,
-  Button,
-  Box,
-  Paper,
-} from '@mui/material'
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar'
-import BuildIcon from '@mui/icons-material/Build'
-import StorageIcon from '@mui/icons-material/Storage'
+import WorkIcon from '@mui/icons-material/Work'
+import PeopleIcon from '@mui/icons-material/People'
+import SearchIcon from '@mui/icons-material/Search'
+import LockIcon from '@mui/icons-material/Lock'
 
 const Dashboard = () => {
   return (
-    <Paper elevation={3} className="form-container">
-      <Typography variant="h4" component="h1" className="page-title" gutterBottom>
-        Formularios SEPCAN Marina
+    <Box>
+      <Typography variant="h4" gutterBottom align="center" sx={{ mb: 4 }}>
+        Sistema de Gestión SEPCAN MARINA
       </Typography>
       
-      <Typography variant="body1" paragraph>
-        Bienvenido a la aplicación de Formularios de SEPCAN Marina. Este sistema permite a los empleados enviar
-        formularios de vehículos y trabajos, y proporciona una forma para que los administradores consulten los datos.
-      </Typography>
-      
-      <Box sx={{ mt: 4 }}>
-        <Grid 
-          container 
-          spacing={4} 
-          className="dashboard-grid"
-          justifyContent="center"
-          sx={{
-            flexWrap: { xs: 'wrap', md: 'nowrap' }
-          }}
-        >
-          {/* Vehicle Form Card */}
-          <Grid item xs={12} sm={6} md={4} sx={{ width: '100%', maxWidth: '350px' }}>
-            <Card 
-              sx={{ 
-                height: '100%', 
-                display: 'flex', 
-                flexDirection: 'column',
-                transition: 'transform 0.2s',
-                '&:hover': {
-                  transform: 'translateY(-5px)',
-                  boxShadow: 6,
-                },
-              }}
-            >
-              <Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
-                <DirectionsCarIcon sx={{ fontSize: 60, color: 'primary.main' }} />
-              </Box>
-              <CardContent sx={{ flexGrow: 1 }}>
-                <Typography gutterBottom variant="h5" component="h2">
-                  Formulario de Vehículo
+      <Grid container spacing={4}>
+        {/* Formularios Section */}
+        <Grid item xs={12}>
+          <Typography variant="h5" gutterBottom sx={{ mb: 2 }}>
+            Formularios
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <Paper 
+                elevation={3} 
+                sx={{ 
+                  p: 3, 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center',
+                  height: '100%',
+                  transition: 'transform 0.3s, box-shadow 0.3s',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: 6,
+                  }
+                }}
+              >
+                <DirectionsCarIcon sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
+                <Typography variant="h6" gutterBottom>
+                  Formulario de Coche
                 </Typography>
-                <Typography>
-                  Complete este formulario antes de reunirse con el cliente. Incluye información sobre la
-                  condición y limpieza del vehículo.
+                <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 2 }}>
+                  Registre información sobre los coches utilizados en los trabajos.
                 </Typography>
-              </CardContent>
-              <CardActions>
                 <Button 
-                  size="small" 
-                  color="primary" 
+                  variant="contained" 
                   component={RouterLink} 
-                  to="/vehicle-form"
-                  fullWidth
-                  variant="contained"
+                  to="/formulario-coche"
+                  sx={{ mt: 'auto' }}
                 >
-                  Ir al Formulario de Vehículo
+                  Ir al Formulario
                 </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-          
-          {/* Job Form Card */}
-          <Grid item xs={12} sm={6} md={4} sx={{ width: '100%', maxWidth: '350px' }}>
-            <Card 
-              sx={{ 
-                height: '100%', 
-                display: 'flex', 
-                flexDirection: 'column',
-                transition: 'transform 0.2s',
-                '&:hover': {
-                  transform: 'translateY(-5px)',
-                  boxShadow: 6,
-                },
-              }}
-            >
-              <Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
-                <BuildIcon sx={{ fontSize: 60, color: 'primary.main' }} />
-              </Box>
-              <CardContent sx={{ flexGrow: 1 }}>
-                <Typography gutterBottom variant="h5" component="h2">
+              </Paper>
+            </Grid>
+            
+            <Grid item xs={12} md={6}>
+              <Paper 
+                elevation={3} 
+                sx={{ 
+                  p: 3, 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center',
+                  height: '100%',
+                  transition: 'transform 0.3s, box-shadow 0.3s',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: 6,
+                  }
+                }}
+              >
+                <WorkIcon sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
+                <Typography variant="h6" gutterBottom>
                   Formulario de Trabajo
                 </Typography>
-                <Typography>
-                  Complete este formulario después de terminar el trabajo. Incluye información sobre el tiempo
-                  dedicado y los materiales utilizados.
+                <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 2 }}>
+                  Registre información sobre los trabajos realizados.
                 </Typography>
-              </CardContent>
-              <CardActions>
                 <Button 
-                  size="small" 
-                  color="primary" 
+                  variant="contained" 
                   component={RouterLink} 
-                  to="/job-form"
-                  fullWidth
-                  variant="contained"
+                  to="/formulario-trabajo"
+                  sx={{ mt: 'auto' }}
                 >
-                  Ir al Formulario de Trabajo
+                  Ir al Formulario
                 </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-          
-          {/* Query Data Card */}
-          <Grid item xs={12} sm={6} md={4} sx={{ width: '100%', maxWidth: '350px' }}>
-            <Card 
-              sx={{ 
-                height: '100%', 
-                display: 'flex', 
-                flexDirection: 'column',
-                transition: 'transform 0.2s',
-                '&:hover': {
-                  transform: 'translateY(-5px)',
-                  boxShadow: 6,
-                },
-              }}
-            >
-              <Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
-                <StorageIcon sx={{ fontSize: 60, color: 'primary.main' }} />
-              </Box>
-              <CardContent sx={{ flexGrow: 1 }}>
-                <Typography gutterBottom variant="h5" component="h2">
-                  Consultar Datos
-                </Typography>
-                <Typography>
-                  Consulte y descargue datos de la base de datos. Filtre por empleado, trabajo o vehículo.
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Button 
-                  size="small" 
-                  color="primary" 
-                  component={RouterLink} 
-                  to="/query"
-                  fullWidth
-                  variant="contained"
-                >
-                  Ir a la Página de Consulta
-                </Button>
-              </CardActions>
-            </Card>
+              </Paper>
+            </Grid>
           </Grid>
         </Grid>
-      </Box>
-    </Paper>
+        
+        {/* Datos Privados Section */}
+        <Grid item xs={12}>
+          <Typography variant="h5" gutterBottom sx={{ mb: 2 }}>
+            Datos Privados
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={4}>
+              <Paper 
+                elevation={3} 
+                sx={{ 
+                  p: 3, 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center',
+                  height: '100%',
+                  transition: 'transform 0.3s, box-shadow 0.3s',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: 6,
+                  }
+                }}
+              >
+                <Box sx={{ position: 'relative' }}>
+                  <DirectionsCarIcon sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
+                  <LockIcon sx={{ 
+                    position: 'absolute', 
+                    top: -10, 
+                    right: -10, 
+                    color: 'warning.main',
+                    backgroundColor: 'white',
+                    borderRadius: '50%',
+                    padding: '2px'
+                  }} />
+                </Box>
+                <Typography variant="h6" gutterBottom>
+                  Gestión de Coches
+                </Typography>
+                <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 2 }}>
+                  Administre la información de los coches (requiere contraseña).
+                </Typography>
+                <Button 
+                  variant="contained" 
+                  component={RouterLink} 
+                  to="/datos-privados/coches"
+                  sx={{ mt: 'auto' }}
+                >
+                  Gestionar Coches
+                </Button>
+              </Paper>
+            </Grid>
+            
+            <Grid item xs={12} md={4}>
+              <Paper 
+                elevation={3} 
+                sx={{ 
+                  p: 3, 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center',
+                  height: '100%',
+                  transition: 'transform 0.3s, box-shadow 0.3s',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: 6,
+                  }
+                }}
+              >
+                <Box sx={{ position: 'relative' }}>
+                  <PeopleIcon sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
+                  <LockIcon sx={{ 
+                    position: 'absolute', 
+                    top: -10, 
+                    right: -10, 
+                    color: 'warning.main',
+                    backgroundColor: 'white',
+                    borderRadius: '50%',
+                    padding: '2px'
+                  }} />
+                </Box>
+                <Typography variant="h6" gutterBottom>
+                  Gestión de Trabajadores
+                </Typography>
+                <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 2 }}>
+                  Administre la información de los trabajadores (requiere contraseña).
+                </Typography>
+                <Button 
+                  variant="contained" 
+                  component={RouterLink} 
+                  to="/datos-privados/trabajadores"
+                  sx={{ mt: 'auto' }}
+                >
+                  Gestionar Trabajadores
+                </Button>
+              </Paper>
+            </Grid>
+            
+            <Grid item xs={12} md={4}>
+              <Paper 
+                elevation={3} 
+                sx={{ 
+                  p: 3, 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center',
+                  height: '100%',
+                  transition: 'transform 0.3s, box-shadow 0.3s',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: 6,
+                  }
+                }}
+              >
+                <Box sx={{ position: 'relative' }}>
+                  <WorkIcon sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
+                  <LockIcon sx={{ 
+                    position: 'absolute', 
+                    top: -10, 
+                    right: -10, 
+                    color: 'warning.main',
+                    backgroundColor: 'white',
+                    borderRadius: '50%',
+                    padding: '2px'
+                  }} />
+                </Box>
+                <Typography variant="h6" gutterBottom>
+                  Gestión de Trabajos
+                </Typography>
+                <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 2 }}>
+                  Administre la información de los trabajos (requiere contraseña).
+                </Typography>
+                <Button 
+                  variant="contained" 
+                  component={RouterLink} 
+                  to="/datos-privados/trabajos"
+                  sx={{ mt: 'auto' }}
+                >
+                  Gestionar Trabajos
+                </Button>
+              </Paper>
+            </Grid>
+          </Grid>
+        </Grid>
+        
+        {/* Consultar Datos Section */}
+        <Grid item xs={12}>
+          <Paper 
+            elevation={3} 
+            sx={{ 
+              p: 3, 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center',
+              transition: 'transform 0.3s, box-shadow 0.3s',
+              '&:hover': {
+                transform: 'translateY(-5px)',
+                boxShadow: 6,
+              }
+            }}
+          >
+            <Box sx={{ position: 'relative' }}>
+              <SearchIcon sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
+              <LockIcon sx={{ 
+                position: 'absolute', 
+                top: -10, 
+                right: -10, 
+                color: 'warning.main',
+                backgroundColor: 'white',
+                borderRadius: '50%',
+                padding: '2px'
+              }} />
+            </Box>
+            <Typography variant="h6" gutterBottom>
+              Consultar Datos
+            </Typography>
+            <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 2 }}>
+              Consulte y exporte datos de formularios (requiere contraseña).
+            </Typography>
+            <Button 
+              variant="contained" 
+              component={RouterLink} 
+              to="/consultar"
+            >
+              Ir a Consultas
+            </Button>
+          </Paper>
+        </Grid>
+      </Grid>
+    </Box>
   )
 }
 

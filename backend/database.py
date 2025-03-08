@@ -1,9 +1,8 @@
-from sqlalchemy import create_engine, Column, Integer, String, Float, Enum, DateTime, ForeignKey, UniqueConstraint
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 import os
 from dotenv import load_dotenv
-import enum
 
 # Load environment variables
 load_dotenv()
@@ -20,50 +19,80 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # Create base class for models
 Base = declarative_base()
 
-# Define enums for condition ratings
-class ConditionRating(str, enum.Enum):
-    PERFECT = "perfect"
-    GOOD = "good"
-    BAD = "bad"
-    CRITICAL = "critical"
+# Define models according to ER diagram
+class Coche(Base):
+    __tablename__ = "coches"
+    
+    placa = Column(Integer, primary_key=True, index=True)
+    marca = Column(String, nullable=False)
+    modelo = Column(String, nullable=False)
+    fecha_fabricacion = Column(String, nullable=False)
+    fecha_compra = Column(String, nullable=False)
+    password = Column(String, nullable=False)
+    
+    # Relationships
+    formularios_coche = relationship("FormularioCoche", back_populates="coche")
+    formularios_trabajo = relationship("FormularioTrabajo", back_populates="coche")
 
-# Define models
-class VehicleFormulary(Base):
-    __tablename__ = "vehicle_formularies"
+class Trabajador(Base):
+    __tablename__ = "trabajadores"
+    
+    dni = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String, nullable=False)
+    apellido = Column(String, nullable=False)
+    fecha_nacimiento = Column(String, nullable=False)
+    fecha_empleo = Column(String, nullable=False)
+    password = Column(String, nullable=False)
+    
+    # Relationships
+    formularios_coche = relationship("FormularioCoche", back_populates="trabajador")
+    formularios_trabajo = relationship("FormularioTrabajo", back_populates="trabajador")
+
+class Trabajo(Base):
+    __tablename__ = "trabajos"
     
     id = Column(Integer, primary_key=True, index=True)
-    employee_id = Column(Integer, nullable=False)
-    employee_name = Column(String, nullable=False)
-    job_id = Column(Integer, nullable=False)
-    job_place = Column(String, nullable=False)
-    vehicle_id = Column(Integer, nullable=False)
-    vehicle_condition = Column(String, nullable=False)
-    vehicle_clean = Column(String, nullable=False)
-    comments = Column(String, nullable=True)
-    timestamp = Column(DateTime, nullable=False)
+    cliente = Column(String, nullable=False)
+    fecha = Column(String, nullable=False)
+    password = Column(String, nullable=False)
     
-    # Composite unique constraint
-    __table_args__ = (
-        UniqueConstraint('job_id', 'vehicle_id', 'employee_id', name='uix_vehicle_form'),
-    )
+    # Relationships
+    formulario_coche = relationship("FormularioCoche", back_populates="trabajo", uselist=False)
+    formulario_trabajo = relationship("FormularioTrabajo", back_populates="trabajo", uselist=False)
 
-class JobFormulary(Base):
-    __tablename__ = "job_formularies"
+class FormularioCoche(Base):
+    __tablename__ = "formularios_coche"
     
-    id = Column(Integer, primary_key=True, index=True)
-    employee_id = Column(Integer, nullable=False)
-    employee_name = Column(String, nullable=False)
-    job_id = Column(Integer, nullable=False)
-    job_place = Column(String, nullable=False)
-    time_to_commute = Column(Float, nullable=False)
-    time_of_work = Column(Float, nullable=False)
-    vehicle_id = Column(Integer, nullable=False)
-    nails_used = Column(Integer, nullable=False)
+    placa_coche = Column(Integer, ForeignKey("coches.placa"), primary_key=True)
+    dni_trabajador = Column(Integer, ForeignKey("trabajadores.dni"), primary_key=True)
+    id_trabajo = Column(Integer, ForeignKey("trabajos.id"), primary_key=True)
+    otros = Column(String, nullable=True)
+    fecha = Column(String, nullable=True)
+    hora_partida = Column(String, nullable=True)
+    estado_coche = Column(String, nullable=True)
     
-    # Composite unique constraint
-    __table_args__ = (
-        UniqueConstraint('employee_id', 'job_id', 'vehicle_id', name='uix_job_form'),
-    )
+    # Relationships
+    coche = relationship("Coche", back_populates="formularios_coche")
+    trabajador = relationship("Trabajador", back_populates="formularios_coche")
+    trabajo = relationship("Trabajo", back_populates="formulario_coche")
+
+class FormularioTrabajo(Base):
+    __tablename__ = "formularios_trabajo"
+    
+    placa_coche = Column(Integer, ForeignKey("coches.placa"), primary_key=True)
+    dni_trabajador = Column(Integer, ForeignKey("trabajadores.dni"), primary_key=True)
+    id_trabajo = Column(Integer, ForeignKey("trabajos.id"), primary_key=True)
+    otros = Column(String, nullable=True)
+    fecha = Column(String, nullable=True)
+    hora_final = Column(String, nullable=True)
+    horas_trabajadas = Column(Float, nullable=True)
+    lugar_trabajo = Column(String, nullable=True)
+    tiempo_llegada = Column(Integer, nullable=True)
+    
+    # Relationships
+    coche = relationship("Coche", back_populates="formularios_trabajo")
+    trabajador = relationship("Trabajador", back_populates="formularios_trabajo")
+    trabajo = relationship("Trabajo", back_populates="formulario_trabajo")
 
 # Function to get DB session
 def get_db():

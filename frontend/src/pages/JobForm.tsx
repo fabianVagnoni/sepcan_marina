@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import {
@@ -9,283 +9,203 @@ import {
   Paper,
   Box,
   CircularProgress,
+  MenuItem,
 } from '@mui/material'
 import { toast } from 'react-toastify'
 
-import { submitJobForm, JobFormData } from '../services/api'
+import { 
+  createFormularioTrabajo, 
+  FormularioTrabajo, 
+  getAllCoches, 
+  getAllTrabajadores, 
+  getAllTrabajos 
+} from '../services/api'
 
 const JobForm = () => {
   const navigate = useNavigate()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [coches, setCoches] = useState<any[]>([])
+  const [trabajadores, setTrabajadores] = useState<any[]>([])
+  const [trabajos, setTrabajos] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [cochesData, trabajadoresData, trabajosData] = await Promise.all([
+          getAllCoches(),
+          getAllTrabajadores(),
+          getAllTrabajos(),
+        ])
+        setCoches(cochesData)
+        setTrabajadores(trabajadoresData)
+        setTrabajos(trabajosData)
+      } catch (error) {
+        console.error('Error fetching data:', error)
+        toast.error('Error al cargar los datos')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    fetchData()
+  }, [])
   
   const {
     control,
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<JobFormData>({
+  } = useForm<FormularioTrabajo>({
     defaultValues: {
-      employee_id: undefined,
-      employee_name: '',
-      job_id: undefined,
-      job_place: '',
-      time_to_commute: 0,
-      time_of_work: 0,
-      vehicle_id: undefined,
-      nails_used: 0,
+      placa_coche: 0,
+      dni_trabajador: 0,
+      id_trabajo: 0,
+      otros: '',
     },
   })
 
-  const onSubmit = async (data: JobFormData) => {
+  const onSubmit = async (data: FormularioTrabajo) => {
+    setIsSubmitting(true)
     try {
-      setIsSubmitting(true)
-      await submitJobForm(data)
-      toast.success('¡Formulario de trabajo enviado con éxito!')
+      await createFormularioTrabajo(data)
+      toast.success('Formulario enviado con éxito')
       reset()
       navigate('/')
-    } catch (error: any) {
-      toast.error(`Error: ${error.response?.data?.detail || 'Error al enviar el formulario'}`)
+    } catch (error) {
+      console.error('Error submitting form:', error)
+      toast.error('Error al enviar el formulario')
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <CircularProgress />
+      </Box>
+    )
+  }
+
   return (
-    <div className="form-container">
-      <Typography variant="h4" component="h1" className="page-title">
+    <Paper elevation={3} sx={{ p: 3, maxWidth: 800, mx: 'auto' }}>
+      <Typography variant="h4" component="h1" gutterBottom align="center">
         Formulario de Trabajo
       </Typography>
       
-      <Typography variant="body1" paragraph>
-        Por favor, complete este formulario después de terminar el trabajo. Este formulario recopila información sobre los detalles del trabajo.
-      </Typography>
-      
-      <Paper elevation={3} sx={{ p: 3 }}>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Grid container spacing={3}>
-            {/* Employee Information */}
-            <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom>
-                Información del Empleado
-              </Typography>
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <Controller
-                name="employee_id"
-                control={control}
-                rules={{ required: 'El ID del empleado es obligatorio' }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="ID del Empleado"
-                    type="number"
-                    fullWidth
-                    error={!!errors.employee_id}
-                    helperText={errors.employee_id?.message}
-                    InputLabelProps={{ shrink: true }}
-                    value={field.value || ''}
-                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : '')}
-                  />
-                )}
-              />
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <Controller
-                name="employee_name"
-                control={control}
-                rules={{ required: 'El nombre del empleado es obligatorio' }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Nombre del Empleado"
-                    fullWidth
-                    error={!!errors.employee_name}
-                    helperText={errors.employee_name?.message}
-                  />
-                )}
-              />
-            </Grid>
-            
-            {/* Job Information */}
-            <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom>
-                Información del Trabajo
-              </Typography>
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <Controller
-                name="job_id"
-                control={control}
-                rules={{ required: 'El ID del trabajo es obligatorio' }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="ID del Trabajo"
-                    type="number"
-                    fullWidth
-                    error={!!errors.job_id}
-                    helperText={errors.job_id?.message}
-                    InputLabelProps={{ shrink: true }}
-                    value={field.value || ''}
-                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : '')}
-                  />
-                )}
-              />
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <Controller
-                name="job_place"
-                control={control}
-                rules={{ required: 'El lugar del trabajo es obligatorio' }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Lugar del Trabajo"
-                    fullWidth
-                    error={!!errors.job_place}
-                    helperText={errors.job_place?.message}
-                  />
-                )}
-              />
-            </Grid>
-            
-            {/* Vehicle Information */}
-            <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom>
-                Información del Vehículo
-              </Typography>
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <Controller
-                name="vehicle_id"
-                control={control}
-                rules={{ required: 'El ID del vehículo es obligatorio' }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="ID del Vehículo"
-                    type="number"
-                    fullWidth
-                    error={!!errors.vehicle_id}
-                    helperText={errors.vehicle_id?.message}
-                    InputLabelProps={{ shrink: true }}
-                    value={field.value || ''}
-                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : '')}
-                  />
-                )}
-              />
-            </Grid>
-            
-            {/* Time and Materials */}
-            <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom>
-                Tiempo y Materiales
-              </Typography>
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <Controller
-                name="time_to_commute"
-                control={control}
-                rules={{ 
-                  required: 'El tiempo de desplazamiento es obligatorio',
-                  min: { value: 0, message: 'El tiempo de desplazamiento debe ser positivo' }
-                }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Tiempo de Desplazamiento (horas)"
-                    type="number"
-                    fullWidth
-                    error={!!errors.time_to_commute}
-                    helperText={errors.time_to_commute?.message}
-                    InputLabelProps={{ shrink: true }}
-                    inputProps={{ step: 0.25 }}
-                    value={field.value || ''}
-                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : '')}
-                  />
-                )}
-              />
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <Controller
-                name="time_of_work"
-                control={control}
-                rules={{ 
-                  required: 'El tiempo de trabajo es obligatorio',
-                  min: { value: 0, message: 'El tiempo de trabajo debe ser positivo' }
-                }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Tiempo de Trabajo (horas)"
-                    type="number"
-                    fullWidth
-                    error={!!errors.time_of_work}
-                    helperText={errors.time_of_work?.message}
-                    InputLabelProps={{ shrink: true }}
-                    inputProps={{ step: 0.25 }}
-                    value={field.value || ''}
-                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : '')}
-                  />
-                )}
-              />
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <Controller
-                name="nails_used"
-                control={control}
-                rules={{ 
-                  required: 'El número de clavos es obligatorio',
-                  min: { value: 0, message: 'El número de clavos debe ser positivo' }
-                }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Clavos Utilizados"
-                    type="number"
-                    fullWidth
-                    error={!!errors.nails_used}
-                    helperText={errors.nails_used?.message}
-                    InputLabelProps={{ shrink: true }}
-                    value={field.value || ''}
-                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : '')}
-                  />
-                )}
-              />
-            </Grid>
-            
-            <Grid item xs={12}>
-              <Box className="form-actions">
-                <Button
-                  variant="outlined"
-                  onClick={() => navigate('/')}
-                  disabled={isSubmitting}
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Controller
+              name="placa_coche"
+              control={control}
+              rules={{ required: 'Este campo es obligatorio' }}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  select
+                  fullWidth
+                  label="Coche (Placa)"
+                  error={!!errors.placa_coche}
+                  helperText={errors.placa_coche?.message}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
                 >
-                  Cancelar
-                </Button>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  disabled={isSubmitting}
-                  startIcon={isSubmitting ? <CircularProgress size={20} /> : null}
-                >
-                  {isSubmitting ? 'Enviando...' : 'Enviar'}
-                </Button>
-              </Box>
-            </Grid>
+                  <MenuItem value={0} disabled>Seleccione un coche</MenuItem>
+                  {coches.map((coche) => (
+                    <MenuItem key={coche.placa} value={coche.placa}>
+                      {coche.placa} - {coche.marca} {coche.modelo}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+            />
           </Grid>
-        </form>
-      </Paper>
-    </div>
+          
+          <Grid item xs={12} md={6}>
+            <Controller
+              name="dni_trabajador"
+              control={control}
+              rules={{ required: 'Este campo es obligatorio' }}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  select
+                  fullWidth
+                  label="Trabajador (DNI)"
+                  error={!!errors.dni_trabajador}
+                  helperText={errors.dni_trabajador?.message}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                >
+                  <MenuItem value={0} disabled>Seleccione un trabajador</MenuItem>
+                  {trabajadores.map((trabajador) => (
+                    <MenuItem key={trabajador.dni} value={trabajador.dni}>
+                      {trabajador.dni} - {trabajador.nombre} {trabajador.apellido}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+            />
+          </Grid>
+          
+          <Grid item xs={12} md={6}>
+            <Controller
+              name="id_trabajo"
+              control={control}
+              rules={{ required: 'Este campo es obligatorio' }}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  select
+                  fullWidth
+                  label="Trabajo (ID)"
+                  error={!!errors.id_trabajo}
+                  helperText={errors.id_trabajo?.message}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                >
+                  <MenuItem value={0} disabled>Seleccione un trabajo</MenuItem>
+                  {trabajos.map((trabajo) => (
+                    <MenuItem key={trabajo.id} value={trabajo.id}>
+                      {trabajo.id} - {trabajo.cliente}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+            />
+          </Grid>
+          
+          <Grid item xs={12}>
+            <Controller
+              name="otros"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  label="Otros detalles"
+                  multiline
+                  rows={4}
+                  helperText="Ingrese cualquier detalle adicional sobre el trabajo"
+                />
+              )}
+            />
+          </Grid>
+          
+          <Grid item xs={12}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              disabled={isSubmitting}
+              sx={{ mt: 2 }}
+            >
+              {isSubmitting ? <CircularProgress size={24} /> : 'Enviar Formulario'}
+            </Button>
+          </Grid>
+        </Grid>
+      </form>
+    </Paper>
   )
 }
 

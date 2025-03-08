@@ -4,11 +4,11 @@ import backgroundImage from '/src/assets/background_pic.jpg'
 
 import Navbar from './components/Navbar'
 import Dashboard from './pages/Dashboard'
-import VehicleForm from './pages/VehicleForm'
-import JobForm from './pages/JobForm'
-import QueryPage from './pages/QueryPage'
+import FormularioTrabajo from './pages/FormularioTrabajo'
+import FormularioCoche from './pages/FormularioCoche'
+import ConsultarDatos from './pages/ConsultarDatos'
+import { DatosPrivadosCoches, DatosPrivadosTrabajadores, DatosPrivadosTrabajos } from './pages/DatosPrivados'
 import NotFound from './pages/NotFound'
-// import backgroundImage from "/src/assets/background_pic.jpg"
 import './App.css'
 
 function App() {
@@ -42,9 +42,19 @@ function App() {
       >
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/vehicle-form" element={<VehicleForm />} />
-          <Route path="/job-form" element={<JobForm />} />
-          <Route path="/query" element={<QueryPage />} />
+          
+          {/* Formularios */}
+          <Route path="/formulario-coche" element={<FormularioCoche />} />
+          <Route path="/formulario-trabajo" element={<FormularioTrabajo />} />
+          
+          {/* Datos Privados */}
+          <Route path="/datos-privados/coches" element={<DatosPrivadosCoches />} />
+          <Route path="/datos-privados/trabajadores" element={<DatosPrivadosTrabajadores />} />
+          <Route path="/datos-privados/trabajos" element={<DatosPrivadosTrabajos />} />
+          
+          {/* Consultar Datos */}
+          <Route path="/consultar" element={<ConsultarDatos />} />
+          
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Container>

@@ -10,20 +10,36 @@ import {
   Container,
   Button,
   MenuItem,
+  Popover,
 } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
 import BuildIcon from '@mui/icons-material/Build'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 
-const pages = [
+// Main navigation items
+const mainPages = [
   { name: 'Inicio', path: '/' },
-  { name: 'Formulario de Vehículo', path: '/vehicle-form' },
-  { name: 'Formulario de Trabajo', path: '/job-form' },
-  { name: 'Consultar Datos', path: '/query' },
+]
+
+// Forms submenu items
+const formPages = [
+  { name: 'Formulario de Coche', path: '/formulario-coche' },
+  { name: 'Formulario de Trabajo', path: '/formulario-trabajo' },
+]
+
+// Private data submenu items
+const privateDataPages = [
+  { name: 'Coches', path: '/datos-privados/coches' },
+  { name: 'Trabajadores', path: '/datos-privados/trabajadores' },
+  { name: 'Trabajos', path: '/datos-privados/trabajos' },
 ]
 
 const Navbar = () => {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null)
+  const [formsAnchorEl, setFormsAnchorEl] = useState<null | HTMLElement>(null)
+  const [privateDataAnchorEl, setPrivateDataAnchorEl] = useState<null | HTMLElement>(null)
 
+  // Mobile menu handlers
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget)
   }
@@ -31,6 +47,27 @@ const Navbar = () => {
   const handleCloseNavMenu = () => {
     setAnchorElNav(null)
   }
+
+  // Forms dropdown handlers
+  const handleFormsClick = (event: React.MouseEvent<HTMLElement>) => {
+    setFormsAnchorEl(event.currentTarget)
+  }
+
+  const handleFormsClose = () => {
+    setFormsAnchorEl(null)
+  }
+
+  // Private data dropdown handlers
+  const handlePrivateDataClick = (event: React.MouseEvent<HTMLElement>) => {
+    setPrivateDataAnchorEl(event.currentTarget)
+  }
+
+  const handlePrivateDataClose = () => {
+    setPrivateDataAnchorEl(null)
+  }
+
+  const formsOpen = Boolean(formsAnchorEl)
+  const privateDataOpen = Boolean(privateDataAnchorEl)
 
   return (
     <AppBar position="static">
@@ -86,7 +123,8 @@ const Navbar = () => {
                 display: { xs: 'block', md: 'none' },
               }}
             >
-              {pages.map((page) => (
+              {/* Main pages */}
+              {mainPages.map((page) => (
                 <MenuItem 
                   key={page.name} 
                   onClick={handleCloseNavMenu}
@@ -96,6 +134,51 @@ const Navbar = () => {
                   <Typography textAlign="center">{page.name}</Typography>
                 </MenuItem>
               ))}
+              
+              {/* Forms submenu */}
+              <MenuItem onClick={handleCloseNavMenu}>
+                <Typography textAlign="center" component={RouterLink} to="/formularios">Formularios</Typography>
+              </MenuItem>
+              
+              {/* Forms items */}
+              {formPages.map((page) => (
+                <MenuItem 
+                  key={page.name} 
+                  onClick={handleCloseNavMenu}
+                  component={RouterLink}
+                  to={page.path}
+                  sx={{ pl: 4 }}
+                >
+                  <Typography textAlign="center">{page.name}</Typography>
+                </MenuItem>
+              ))}
+              
+              {/* Private data submenu */}
+              <MenuItem onClick={handleCloseNavMenu}>
+                <Typography textAlign="center" component={RouterLink} to="/datos-privados">Datos Privados</Typography>
+              </MenuItem>
+              
+              {/* Private data items */}
+              {privateDataPages.map((page) => (
+                <MenuItem 
+                  key={page.name} 
+                  onClick={handleCloseNavMenu}
+                  component={RouterLink}
+                  to={page.path}
+                  sx={{ pl: 4 }}
+                >
+                  <Typography textAlign="center">{page.name}</Typography>
+                </MenuItem>
+              ))}
+              
+              {/* Query data */}
+              <MenuItem 
+                onClick={handleCloseNavMenu}
+                component={RouterLink}
+                to="/consultar"
+              >
+                <Typography textAlign="center">Consultar Datos</Typography>
+              </MenuItem>
             </Menu>
           </Box>
 
@@ -122,7 +205,8 @@ const Navbar = () => {
 
           {/* Desktop menu */}
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page) => (
+            {/* Main pages */}
+            {mainPages.map((page) => (
               <Button
                 key={page.name}
                 component={RouterLink}
@@ -133,6 +217,78 @@ const Navbar = () => {
                 {page.name}
               </Button>
             ))}
+            
+            {/* Forms dropdown */}
+            <Button
+              onClick={handleFormsClick}
+              sx={{ my: 2, color: 'white', display: 'flex', alignItems: 'center' }}
+              endIcon={<KeyboardArrowDownIcon />}
+            >
+              Formularios
+            </Button>
+            <Popover
+              open={formsOpen}
+              anchorEl={formsAnchorEl}
+              onClose={handleFormsClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+            >
+              <Box sx={{ py: 1 }}>
+                {formPages.map((page) => (
+                  <MenuItem
+                    key={page.name}
+                    component={RouterLink}
+                    to={page.path}
+                    onClick={handleFormsClose}
+                  >
+                    {page.name}
+                  </MenuItem>
+                ))}
+              </Box>
+            </Popover>
+            
+            {/* Private data dropdown */}
+            <Button
+              onClick={handlePrivateDataClick}
+              sx={{ my: 2, color: 'white', display: 'flex', alignItems: 'center' }}
+              endIcon={<KeyboardArrowDownIcon />}
+            >
+              Datos Privados
+            </Button>
+            <Popover
+              open={privateDataOpen}
+              anchorEl={privateDataAnchorEl}
+              onClose={handlePrivateDataClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+            >
+              <Box sx={{ py: 1 }}>
+                {privateDataPages.map((page) => (
+                  <MenuItem
+                    key={page.name}
+                    component={RouterLink}
+                    to={page.path}
+                    onClick={handlePrivateDataClose}
+                  >
+                    {page.name}
+                  </MenuItem>
+                ))}
+              </Box>
+            </Popover>
+            
+            {/* Query data */}
+            <Button
+              component={RouterLink}
+              to="/consultar"
+              onClick={handleCloseNavMenu}
+              sx={{ my: 2, color: 'white', display: 'block' }}
+            >
+              Consultar Datos
+            </Button>
           </Box>
         </Toolbar>
       </Container>
