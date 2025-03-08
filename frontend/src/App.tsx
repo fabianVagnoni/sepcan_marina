@@ -58,6 +58,14 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Container>
+      
+      <footer className="footer">
+        <div className="footer-content">
+          <div className="copyright">
+            SEPCAN {new Date().getFullYear()} - Todos los derechos reservados
+          </div>
+        </div>
+      </footer>
     </>
   )
 }
