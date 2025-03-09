@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard'
 import FormularioTrabajo from './pages/FormularioTrabajo'
 import FormularioCoche from './pages/FormularioCoche'
 import ConsultarDatos from './pages/ConsultarDatos'
+import Estadisticas from './pages/Estadisticas'
 import { DatosPrivadosCoches, DatosPrivadosTrabajadores, DatosPrivadosTrabajos } from './pages/DatosPrivados'
 import NotFound from './pages/NotFound'
 import './App.css'
@@ -54,6 +55,9 @@ function App() {
           
           {/* Consultar Datos */}
           <Route path="/consultar" element={<ConsultarDatos />} />
+          
+          {/* Estadísticas */}
+          <Route path="/estadisticas" element={<Estadisticas />} />
           
           <Route path="*" element={<NotFound />} />
         </Routes>

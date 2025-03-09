@@ -49,6 +49,9 @@ interface FormularioCoche {
   id_trabajo: number;
   cliente_trabajo: string;
   fecha_trabajo: string;
+  fecha: string;
+  hora_partida: string;
+  estado_coche: string;
   otros?: string;
 }
 
@@ -63,6 +66,11 @@ interface FormularioTrabajo {
   id_trabajo: number;
   cliente_trabajo: string;
   fecha_trabajo: string;
+  fecha: string;
+  hora_final: string;
+  horas_trabajadas: number;
+  lugar_trabajo: string;
+  tiempo_llegada: number;
   otros?: string;
 }
 
@@ -343,7 +351,7 @@ const ConsultarDatos = () => {
                     InputLabelProps={{ shrink: true }}
                     helperText="Filtrar desde esta fecha (inclusive)"
                     inputProps={{
-                      max: "2030-12-31",
+                      max: "2050-12-31",
                       min: "1900-01-01"
                     }}
                   />
@@ -426,6 +434,9 @@ const ConsultarDatos = () => {
                       <TableCell>ID Trabajo</TableCell>
                       <TableCell>Cliente</TableCell>
                       <TableCell>Fecha Trabajo</TableCell>
+                      <TableCell>Fecha</TableCell>
+                      <TableCell>Hora Partida</TableCell>
+                      <TableCell>Estado Coche</TableCell>
                       <TableCell>Otros</TableCell>
                     </TableRow>
                   </TableHead>
@@ -439,6 +450,9 @@ const ConsultarDatos = () => {
                         <TableCell>{result.id_trabajo}</TableCell>
                         <TableCell>{result.cliente_trabajo}</TableCell>
                         <TableCell>{result.fecha_trabajo}</TableCell>
+                        <TableCell>{result.fecha}</TableCell>
+                        <TableCell>{result.hora_partida}</TableCell>
+                        <TableCell>{result.estado_coche}</TableCell>
                         <TableCell>{result.otros}</TableCell>
                       </TableRow>
                     ))}
@@ -466,6 +480,11 @@ const ConsultarDatos = () => {
                       <TableCell>ID Trabajo</TableCell>
                       <TableCell>Cliente</TableCell>
                       <TableCell>Fecha Trabajo</TableCell>
+                      <TableCell>Fecha</TableCell>
+                      <TableCell>Hora Final</TableCell>
+                      <TableCell>Horas Trabajadas</TableCell>
+                      <TableCell>Lugar Trabajo</TableCell>
+                      <TableCell>Tiempo Llegada</TableCell>
                       <TableCell>Otros</TableCell>
                     </TableRow>
                   </TableHead>
@@ -479,6 +498,11 @@ const ConsultarDatos = () => {
                         <TableCell>{result.id_trabajo}</TableCell>
                         <TableCell>{result.cliente_trabajo}</TableCell>
                         <TableCell>{result.fecha_trabajo}</TableCell>
+                        <TableCell>{result.fecha}</TableCell>
+                        <TableCell>{result.hora_final}</TableCell>
+                        <TableCell>{result.horas_trabajadas}</TableCell>
+                        <TableCell>{result.lugar_trabajo}</TableCell>
+                        <TableCell>{result.tiempo_llegada}</TableCell>
                         <TableCell>{result.otros}</TableCell>
                       </TableRow>
                     ))}

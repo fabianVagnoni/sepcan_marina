@@ -8,6 +8,9 @@ import pandas as pd
 from io import BytesIO
 from fastapi.responses import StreamingResponse
 from fastapi.responses import JSONResponse
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import json
 
 from database import get_db, Coche, Trabajador, Trabajo, FormularioCoche, FormularioTrabajo, create_tables
 from pydantic import BaseModel, Field
@@ -664,6 +667,258 @@ def query_combined_data(
     except Exception as e:
         print(f"Error in query_combined_data: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error processing query: {str(e)}")
+
+@app.get("/statistics/jobs-distribution")
+def get_jobs_distribution(db: Session = Depends(get_db)):
+    try:
+        query_result = db.query(
+            FormularioTrabajo,
+            Trabajador.nombre.label("nombre_trabajador"),
+            Trabajador.apellido.label("apellido_trabajador"),
+            Trabajador.dni.label("dni_trabajador"),
+            Coche.marca.label("marca_coche"),
+            Coche.modelo.label("modelo_coche"),
+            Coche.placa.label("placa_coche")
+        ).join(
+            Trabajador, FormularioTrabajo.dni_trabajador == Trabajador.dni
+        ).join(
+            Coche, FormularioTrabajo.placa_coche == Coche.placa
+        ).all()
+
+        # Process data
+        employee_jobs = {}
+        vehicle_jobs = {}
+        total_jobs = len(query_result)
+
+        print(f"Total jobs found: {total_jobs}")
+
+        for result in query_result:
+            form, nombre, apellido, dni, marca, modelo, placa = result
+            
+            employee_key = f"{nombre} {apellido} ({dni})"
+            employee_jobs[employee_key] = employee_jobs.get(employee_key, 0) + 1
+
+            vehicle_key = f"{marca} {modelo} ({placa})"
+            vehicle_jobs[vehicle_key] = vehicle_jobs.get(vehicle_key, 0) + 1
+
+        print(f"Employee jobs: {employee_jobs}")
+        print(f"Vehicle jobs: {vehicle_jobs}")
+
+        if total_jobs == 0:
+            return JSONResponse(content={
+                "error": "No se encontraron datos de trabajos"
+            })
+
+        # Create figure with subplots
+        fig = make_subplots(
+            rows=1, cols=2,
+            specs=[[{"type": "domain"}, {"type": "domain"}]],
+            subplot_titles=("Distribución por Empleado", "Distribución por Vehículo")
+        )
+
+        # Add employee trace
+        employee_values = list(employee_jobs.values())
+        employee_labels = list(employee_jobs.keys())
+        employee_percentages = [f"{(v/total_jobs)*100:.1f}%" for v in employee_values]
+
+        fig.add_trace(
+            go.Pie(
+                values=employee_values,
+                labels=employee_labels,
+                text=employee_percentages,
+                textinfo="text",
+                hovertemplate="%{label}<br>%{text}<extra></extra>",
+                name="Por Empleado",
+                hole=0.6,
+                marker=dict(
+                    colors=['#4285F4', '#34A853', '#FBBC05', '#EA4335', '#5E35B1'],
+                    line=dict(color='white', width=2)
+                )
+            ),
+            row=1, col=1
+        )
+
+        # Add vehicle trace
+        vehicle_values = list(vehicle_jobs.values())
+        vehicle_labels = list(vehicle_jobs.keys())
+        vehicle_percentages = [f"{(v/total_jobs)*100:.1f}%" for v in vehicle_values]
+
+        fig.add_trace(
+            go.Pie(
+                values=vehicle_values,
+                labels=vehicle_labels,
+                text=vehicle_percentages,
+                textinfo="text",
+                hovertemplate="%{label}<br>%{text}<extra></extra>",
+                name="Por Vehículo",
+                hole=0.6,
+                marker=dict(
+                    colors=['#42A5F5', '#66BB6A', '#FFA726', '#EF5350', '#AB47BC'],
+                    line=dict(color='white', width=2)
+                )
+            ),
+            row=1, col=2
+        )
+
+        # Update layout
+        fig.update_layout(
+            showlegend=True,
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=-0.2,
+                xanchor="center",
+                x=0.5
+            ),
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            margin=dict(t=60, b=60, l=20, r=20),
+            height=400,
+            width=800
+        )
+
+        plot_json = json.loads(fig.to_json())
+        return JSONResponse(content=plot_json)
+
+    except Exception as e:
+        print(f"Error generating statistics: {str(e)}")
+        print(f"Full error details: ", e)
+        raise HTTPException(status_code=500, detail=f"Error generating statistics: {str(e)}")
+
+@app.get("/statistics/monthly-distribution")
+def get_monthly_distribution(db: Session = Depends(get_db)):
+    try:
+        # Query all work forms
+        query_result = db.query(FormularioTrabajo).all()
+        
+        # Process data
+        monthly_jobs = {i: 0 for i in range(1, 13)}  # Initialize all months
+        
+        for form in query_result:
+            if form.fecha:  # Check if date exists
+                try:
+                    # Parse date from DD/MM/YYYY format
+                    date = datetime.strptime(form.fecha, "%d/%m/%Y")
+                    month = date.month
+                    monthly_jobs[month] += 1
+                except ValueError:
+                    continue
+
+        # Create the plot
+        months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+        
+        fig = go.Figure()
+        
+        fig.add_trace(go.Bar(
+            x=months,
+            y=[monthly_jobs[i] for i in range(1, 13)],
+            marker_color='#4285F4',
+            hovertemplate="<b>%{x}</b><br>" +
+                         "Trabajos: %{y}<extra></extra>"
+        ))
+
+        fig.update_layout(
+            title={
+                'text': "Distribución Mensual de Trabajos",
+                'y': 0.95,
+                'x': 0.5,
+                'xanchor': 'center',
+                'yanchor': 'top',
+                'font': dict(size=20)
+            },
+            xaxis_title="Mes",
+            yaxis_title="Número de Trabajos",
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            height=400,
+            margin=dict(t=60, b=60, l=60, r=20),
+            xaxis=dict(
+                showgrid=True,
+                gridcolor='rgba(0,0,0,0.1)',
+                tickangle=45
+            ),
+            yaxis=dict(
+                showgrid=True,
+                gridcolor='rgba(0,0,0,0.1)'
+            )
+        )
+
+        plot_json = json.loads(fig.to_json())
+        return JSONResponse(content=plot_json)
+
+    except Exception as e:
+        print(f"Error generating monthly distribution: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating monthly distribution: {str(e)}")
+
+@app.get("/statistics/timeline")
+def get_timeline(db: Session = Depends(get_db)):
+    try:
+        # Query all work forms
+        query_result = db.query(FormularioTrabajo).all()
+        
+        # Process data
+        monthly_data = {}
+        
+        for form in query_result:
+            if form.fecha:  # Check if date exists
+                try:
+                    # Parse date from DD/MM/YYYY format
+                    date = datetime.strptime(form.fecha, "%d/%m/%Y")
+                    key = date.strftime("%m/%Y")  # Format as MM/YYYY
+                    monthly_data[key] = monthly_data.get(key, 0) + 1
+                except ValueError:
+                    continue
+
+        # Sort dates
+        sorted_dates = sorted(monthly_data.keys(), 
+                            key=lambda x: datetime.strptime(x, "%m/%Y"))
+        
+        # Create the plot
+        fig = go.Figure()
+        
+        fig.add_trace(go.Scatter(
+            x=sorted_dates,
+            y=[monthly_data[date] for date in sorted_dates],
+            mode='lines+markers',
+            line=dict(color='#4285F4', width=2),
+            marker=dict(size=8, color='#4285F4'),
+            hovertemplate="<b>%{x}</b><br>" +
+                         "Trabajos: %{y}<extra></extra>"
+        ))
+
+        fig.update_layout(
+            title={
+                'text': "Evolución Temporal de Trabajos",
+                'y': 0.95,
+                'x': 0.5,
+                'xanchor': 'center',
+                'yanchor': 'top',
+                'font': dict(size=20)
+            },
+            xaxis_title="Mes/Año",
+            yaxis_title="Número de Trabajos",
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            height=400,
+            margin=dict(t=60, b=60, l=60, r=20),
+            xaxis=dict(
+                showgrid=True,
+                gridcolor='rgba(0,0,0,0.1)',
+                tickangle=45
+            ),
+            yaxis=dict(
+                showgrid=True,
+                gridcolor='rgba(0,0,0,0.1)'
+            )
+        )
+
+        plot_json = json.loads(fig.to_json())
+        return JSONResponse(content=plot_json)
+
+    except Exception as e:
+        print(f"Error generating timeline: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating timeline: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

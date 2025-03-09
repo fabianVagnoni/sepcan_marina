@@ -136,6 +136,14 @@ const Navbar = () => {
         >
           CONSULTAR DATOS
         </Button>
+
+        <Button
+          component={RouterLink}
+          to="/estadisticas"
+          color="inherit"
+        >
+          ESTADÍSTICAS
+        </Button>
       </Toolbar>
     </AppBar>
   );
