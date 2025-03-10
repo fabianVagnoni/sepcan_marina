@@ -18,7 +18,7 @@ import {
 import axios from 'axios';
 import Plotly from 'plotly.js-dist';
 
-const CORRECT_PASSWORD = "MiViejoSanJuan2024";
+const CORRECT_PASSWORD = import.meta.env.VITE_APP_ACCESS_PASSWORD;
 
 interface PlotData {
   distribution: any;

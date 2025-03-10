@@ -91,7 +91,7 @@ const ConsultarDatos = () => {
   const [queryAction, setQueryAction] = useState<'query' | 'export'>('query')
   const [activeTab, setActiveTab] = useState(0)
 
-  const CORRECT_PASSWORD = "MiViejoSanJuan2024"
+  const CORRECT_PASSWORD = import.meta.env.VITE_APP_ACCESS_PASSWORD
 
   const {
     control,

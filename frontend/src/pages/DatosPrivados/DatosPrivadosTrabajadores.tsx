@@ -54,7 +54,7 @@ const DatosPrivadosTrabajadores = () => {
   const [selectedTrabajador, setSelectedTrabajador] = useState<number | null>(null)
   const [passwordError, setPasswordError] = useState<string | null>(null)
 
-  const CORRECT_PASSWORD = "MiViejoSanJuan2024"
+  const CORRECT_PASSWORD = import.meta.env.VITE_APP_ACCESS_PASSWORD
 
   // Load trabajadores on component mount
   useEffect(() => {
